@@ -1,0 +1,6 @@
+aiogram~=3.13.0
+tinkoff~=0.1.1
+pandas~=2.2.2
+asyncpg~=0.29.0
+gnupg~=2.3.1
+aioschedule~=0.5.2
