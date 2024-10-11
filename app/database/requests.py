@@ -15,9 +15,16 @@ import asyncio
 #     print(data)
 
 
-
 async def insert(tg_id, type, token, name):
     await ASYNC_INSERT('user_data', name=name, token=token, type=type, user_id=str(tg_id))
+
+
+async def insert_graf(type, price):
+    await ASYNC_INSERT('strategs_grafs', type=type, price=str(price))
+
+async def select_graf(type):
+    data = await ASYNC_SELECT('strategs_grafs', ['price'], w_s=True, w_c='type', w_d=type)
+    return data
 
 
 async def select_user_strateg(tg_id):
