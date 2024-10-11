@@ -157,7 +157,8 @@ async def token_update(callback: CallbackQuery):
     data = await rq.select_user_strateg(callback.from_user.id)
     await rq.update(data[int(index)][2], s)
 
-    await callback.message.answer(text=f'{data[int(index)][0]} ,cтратегия обновлена')
+    await callback.message.edit_text(text=f'{data[int(index)][0]} ,cтратегия обновлена',
+                                         reply_markup=kb.insert_my_token)
 
 
 
@@ -170,7 +171,7 @@ async def reg_tokens(message: Message, state: FSMContext):
             name = client.users.get_accounts()
             if len(await rq.select_token(data["token"])) == 0:
                 if name.accounts[0].access_level == 1:
-                    await message.answer(f'спасибо, за регистрацию нового токена\n'
+                    await message.answer(f' регистрацию нового токена успешна\n'
                                          f'счет {name.accounts[0].name} подключен\n'
                                          f'уровень доступа {name.accounts[0].access_level} ',
                                          reply_markup=kb.insert_my_token)
