@@ -200,8 +200,3 @@ async def start_invest():
 
 
 
-
-
-
-
-
