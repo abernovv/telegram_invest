@@ -9,21 +9,20 @@ from invest_api.start_invest import start_invest
 
 from config import TOKEN_TELEGRAM
 
-import time
-
 nest_asyncio.apply()
 
 bot = Bot(token=TOKEN_TELEGRAM)
 dp = Dispatcher()
 
 
-
 async def ping():
-    try:
-        print("cледование стратегиям началось ")
-        await start_invest()
-    except Exception:
-        print(traceback.format_exc())
+    while 1:
+        try:
+            print("cледование стратегиям началось ")
+            await start_invest()
+        except Exception:
+            print(traceback.format_exc())
+            await asyncio.sleep(20)
 
 
 async def scheduler():
@@ -31,8 +30,6 @@ async def scheduler():
         await ping()
     except Exception:
         print(traceback.format_exc())
-        time.sleep(10)
-        await ping()
 
 
 async def on_startup():
@@ -40,8 +37,6 @@ async def on_startup():
         await asyncio.create_task(scheduler())
     except Exception:
         print(traceback.format_exc())
-        time.sleep(10)
-        await asyncio.create_task(scheduler())
 
 
 def start_startup():
