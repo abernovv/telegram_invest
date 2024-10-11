@@ -16,6 +16,7 @@ import app.database.requests as rq
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 
+from aiogram.types import FSInputFile, InputMediaPhoto
 
 router = Router()
 
@@ -46,9 +47,20 @@ async def main_menu(callback: CallbackQuery):
 
 
 #===========================helper===========================================================================================
-@router.message(F.text == 'написать в поддержку')
+@router.message(F.text == 'как получить токен')
 async def main_menu(message: Message):
-    await message.answer(f'контакт для связи @helpsparkleinvests ')
+    photo_paths = ['images/1.png', 'images/2.png']  # Укажите путь к вашей фотографии
+    photos_with_captions = [
+        ('images/1.png', 'https://www.tbank.ru/invest/settings/api/'),
+        ('images/2.png', ''),
+    ]
+
+    media = [
+        InputMediaPhoto(media=FSInputFile(photo_path), caption=caption)
+        for photo_path, caption in photos_with_captions
+    ]
+
+    await message.answer_media_group(media=media)
 
 
 #=============================info_strategs============================================================================================
@@ -64,8 +76,7 @@ async def view_strategs(callback: CallbackQuery):
     s = callback.data.split('_')[1]
     if s != 'all':
         print('images/'+s+'.png')
-        # await callback.message.answer_photo(photo=open('images/'+s+'.png', 'rb'), caption=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s))} ```',
-        #                              reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
+        await callback.message.answer_photo(photo=FSInputFile('images/'+s+'.png'))
         await callback.message.edit_text(text=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s))} ```',
                                      reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
     else:
