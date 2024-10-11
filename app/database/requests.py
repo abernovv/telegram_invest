@@ -4,6 +4,7 @@ from config import db_config
 
 bd_script.db_config_local = db_config
 
+
 import asyncio
 
 #async def test():
@@ -47,3 +48,12 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+#CREATE USER db_user WITH PASSWORD 'password';
+#CREATE DATABASE invest;
+#GRANT ALL PRIVILEGES ON DATABASE invest to db_user;
+#CREATE TABLE strategs_grafs (type TEXT, price TEXT);
+#CREATE TABLE user_data (id SERIAL PRIMARY KEY, user_id TEXT, token TEXT, type TEXT, name TEXT);
+
+
