@@ -1,5 +1,6 @@
-aiogram~=3.13.0
+aiogram~=3.12.0
 tinkoff~=0.1.1
+matplotlib~=3.9.2
 pandas~=2.2.2
 asyncpg~=0.29.0
 gnupg~=2.3.1
