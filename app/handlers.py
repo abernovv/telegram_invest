@@ -63,7 +63,10 @@ async def view_strategs(callback: CallbackQuery):
     await callback.answer()
     s = callback.data.split('_')[1]
     if s != 'all':
-        await callback.message.edit_text(text=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s) ) } ```',
+        print('images/'+s+'.png')
+        # await callback.message.answer_photo(photo=open('images/'+s+'.png', 'rb'), caption=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s))} ```',
+        #                              reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
+        await callback.message.edit_text(text=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s))} ```',
                                      reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
     else:
         s = " "
@@ -176,7 +179,6 @@ async def reg_tokens(message: Message, state: FSMContext):
                                          f'уровень доступа {name.accounts[0].access_level} ',
                                          reply_markup=kb.insert_my_token)
                     await rq.insert(message.from_user.id, data['stra'], data["token"], name.accounts[0].name)
-                    print(data['stra'])
                     await state.clear()
                 else:
                     await message.answer('токену не хватает уровня доступа\nВведите ваш токен повторно',
