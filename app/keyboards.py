@@ -9,7 +9,7 @@ from config import name_strategs
 
 start = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text='меню')],
-    [KeyboardButton(text='написать в поддержку')],
+    [KeyboardButton(text='как получить токен')],
    ],
     resize_keyboard=True)
 
