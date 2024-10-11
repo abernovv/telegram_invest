@@ -149,6 +149,29 @@ def clear_strategies(strateg):
     for key in strateg.keys():
         strateg[key] = ["", 0, 0, 0]
 
+import matplotlib
+import matplotlib.pyplot as plt
+matplotlib.use('Agg')
+async def creat_grafs():
+    print("creat_graf")
+
+    for i in TOKEN_STRATEG.keys():
+        activ = await activs(TOKEN_STRATEG[i])
+        await rq.insert_graf(i, str(int(activ[3])))
+        s = await rq.select_graf(i)
+        arr = []
+        for j in range(len(s)):
+            arr.append(int(s[j][0]))
+        print(arr)
+        plt.plot(arr)
+        plt.title('График динамики стратегии')
+        plt.xlabel('Индекс')
+        plt.ylabel('цена')
+
+        # Сохранение графика как изображения
+        plt.savefig('images/'+i+'.png', format='png')  # Сохранение в формате PNG
+        plt.close()
+
 
 async def start_invest():
     try:
@@ -164,15 +187,21 @@ async def start_invest():
                 creat_graf = 0
                 for key in TOKEN_STRATEG.keys():
                     await proverka(strategies[key], key)
+
             elif creat_graf == 0:
                 creat_graf = 1
-                print("creat_graf")
-
-
-
+                await creat_grafs()
 
 
     except RequestError as e:
         print(str(e))
         await asyncio.sleep(10)
         await start_invest()
+
+
+
+
+
+
+
+
