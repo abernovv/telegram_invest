@@ -1,9 +1,9 @@
 import time
 from tinkoff.invest import Client, RequestError, OrderDirection, OrderType
-from config import TOKEN_STRATEG
+from config import TOKEN_STRATEG, strategies
 from invest_api.print_portfel import activs, print_portfolio
 import datetime
-
+import asyncio
 import app.database.requests as rq
 
 
@@ -31,6 +31,7 @@ async def comparison(old, token):
 
     except RequestError as e:
         print(str(e))
+        return 0
 
 
 def buysell(token, act):
@@ -52,30 +53,28 @@ def buysell(token, act):
                     bids = [p.price for p in book.bids]
                     asks = [p.price for p in book.asks]
                 if int(act[i][1]) < 0:
-                    # sell = client.orders.post_order(
-                    #     order_id=str(datetime.datetime.now().time()),
-                    #     figi=act[i][0],
-                    #     price=asks[0],
-                    #     quantity=act[i][1],
-                    #     account_id=accounts.accounts[0].id,
-                    #     direction=OrderDirection.ORDER_DIRECTION_SELL,
-                    #     order_type=OrderType.ORDER_TYPE_LIMIT
-                    # )
-                    print(f'продать {act[i][0]} : {act[i][1]}')
+                    sell = client.orders.post_order(
+                        order_id=str(datetime.datetime.now().time()),
+                        figi=act[i][0],
+                        price=asks[0],
+                        quantity=-act[i][1],
+                        account_id=accounts.accounts[0].id,
+                        direction=OrderDirection.ORDER_DIRECTION_SELL,
+                        order_type=OrderType.ORDER_TYPE_LIMIT
+                    )
+                    print(f'продать {act[i][0]} : {-act[i][1]}')
                 elif int(act[i][1]) > 0 and (money > bids[0].units * act[i][1]):
                     money -= bids[0].units * int(act[i][1])
-                    # buy = client.orders.post_order(
-                    #     order_id=str(datetime.datetime.now().time()),
-                    #     figi=acc.figi,
-                    #     price=bids[0],
-                    #     quantity=act[i][1],
-                    #     account_id=accounts.accounts[0].id,
-                    #     direction=OrderDirection.ORDER_DIRECTION_BUY,
-                    #     order_type=OrderType.ORDER_TYPE_LIMIT
-                    # )
+                    buy = client.orders.post_order(
+                        order_id=str(datetime.datetime.now().time()),
+                        figi=act[i][0],
+                        price=bids[0],
+                        quantity=act[i][1],
+                        account_id=accounts.accounts[0].id,
+                        direction=OrderDirection.ORDER_DIRECTION_BUY,
+                        order_type=OrderType.ORDER_TYPE_LIMIT
+                    )
                     print(f'купить {act[i][0]} : {act[i][1]}')
-
-
 
 
 #создает список покупок\продаж
@@ -97,9 +96,10 @@ async def buy_sell_list(strategs_arr, token, token_id):
 
     if token_id == '500961694':
         user[3] = int(user[3]) + 5000
-    print(user[3], user[4])
+
     multiplier = (int(user[3]) * 1.0) / int(strategs_arr[3])
 
+    print(user[3], user[4], round(multiplier, 2))
     # Создаем словарь для хранения итоговых значений
     result_dict = {}
 
@@ -128,38 +128,51 @@ async def buy_sell_list(strategs_arr, token, token_id):
 
     buysell(token, result_list)
 
-async def proverka(ARR,name):
-    if await comparison(ARR, TOKEN_STRATEG[name]):
-        print(name)
-        # for i in range(len(ARR[0])):
-        #      print(ARR[0][i], ARR[2][i])
-        data = await rq.select_strateg(name)
-        for d in data:
-            await buy_sell_list(ARR, d[1], d[0])
-            time.sleep(1)
-    time.sleep(2)
+
+async def proverka(ARR, name):
+    try:
+        if await comparison(ARR, TOKEN_STRATEG[name]):
+            print(name)
+            # for i in range(len(ARR[0])):
+            #      print(ARR[0][i], ARR[2][i])
+            data = await rq.select_strateg(name)
+            for d in data:
+                await buy_sell_list(ARR, d[1], d[0])
+                await asyncio.sleep(1)
+        await asyncio.sleep(2)
+    except RequestError as e:
+        print(str(e))
+        return 0
+
+
+def clear_strategies(strateg):
+    for key in strateg.keys():
+        strateg[key] = ["", 0, 0, 0]
 
 
 async def start_invest():
     try:
-        TENI = ["", 0, 0, 0]
-        RF = ["", 0, 0, 0]
-        VOLNA = ["", 0, 0, 0]
+        creat_graf = 0
         while 1:
             current_time = datetime.datetime.now().time()  # Получение текущего времени
             if ((datetime.time(14, 0, 30) <= current_time <= datetime.time(14, 1, 0)) or
                     (datetime.time(18, 0, 30) <= current_time <= datetime.time(18, 1, 0))):
                 print("CLEAR STRATEGS")
-                TENI = ["", 0, 0, 0]
-                RF = ["", 0, 0, 0]
-                VOLNA = ["", 0, 0, 0]
+                clear_strategies(strategies)
+
             if start_time <= current_time <= end_time:
-                await proverka(TENI, 'teni')
-                await proverka(RF, 'rost')
-                await proverka(VOLNA, 'volna')
+                creat_graf = 0
+                for key in TOKEN_STRATEG.keys():
+                    await proverka(strategies[key], key)
+            elif creat_graf == 0:
+                creat_graf = 1
+                print("creat_graf")
+
+
+
 
 
     except RequestError as e:
         print(str(e))
-        time.sleep(10)
+        await asyncio.sleep(10)
         await start_invest()
