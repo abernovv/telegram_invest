@@ -162,9 +162,8 @@ async def creat_grafs():
         arr = []
         for j in range(len(s)):
             arr.append(int(s[j][0]))
-        print(arr)
         plt.plot(arr)
-        plt.title('График динамики стратегии')
+        plt.title('График динамики стратегии ' + activ[4])
         plt.xlabel('Индекс')
         plt.ylabel('цена')
 
@@ -188,10 +187,9 @@ async def start_invest():
                 for key in TOKEN_STRATEG.keys():
                     await proverka(strategies[key], key)
 
-            elif creat_graf == 0:
+            if creat_graf == 0:
                 creat_graf = 1
                 await creat_grafs()
-
 
     except RequestError as e:
         print(str(e))
