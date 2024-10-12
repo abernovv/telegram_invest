@@ -1,4 +1,4 @@
-import time
+limport time
 from tinkoff.invest import Client, RequestError, OrderDirection, OrderType
 from config import TOKEN_STRATEG, strategies
 from invest_api.print_portfel import activs, print_portfolio
@@ -187,7 +187,7 @@ async def start_invest():
                 for key in TOKEN_STRATEG.keys():
                     await proverka(strategies[key], key)
 
-            if creat_graf == 0:
+            elif creat_graf == 0:
                 creat_graf = 1
                 await creat_grafs()
 
