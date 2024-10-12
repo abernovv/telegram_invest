@@ -37,7 +37,7 @@ async def cmd_start(message: Message):
 @router.message(F.text == 'меню')
 async def main_menu(message: Message):
     await message.answer(f'тут вы сможете управлять своими счетами и выбирать стратегии', reply_markup=kb.main)
-    await message.delete(id = message.message_id)
+    await message.delete(id=message.message_id)
 
 
 @router.callback_query(F.data == 'mein_menu')
@@ -49,6 +49,7 @@ async def main_menu(callback: CallbackQuery):
 #===========================helper===========================================================================================
 @router.message(F.text == 'как получить токен')
 async def main_menu(message: Message):
+    await message.delete(id=message.message_id)
     photo_paths = ['images/1.png', 'images/2.png']  # Укажите путь к вашей фотографии
     photos_with_captions = [
         ('images/1.png', 'https://www.tbank.ru/invest/settings/api/'),
@@ -67,7 +68,8 @@ async def main_menu(message: Message):
 @router.callback_query(F.data == 'info_strategs')
 async def info_strategs(callback: CallbackQuery):
     await callback.answer()
-    await callback.message.edit_text('просмотр стратегий', reply_markup= await kb.viewing_strateg())
+    await callback.message.delete(id=callback.message.message_id)
+    await callback.message.answer('просмотр стратегий', reply_markup= await kb.viewing_strateg())
 
 
 @router.callback_query(F.data.startswith('view_'))
@@ -75,9 +77,8 @@ async def view_strategs(callback: CallbackQuery):
     await callback.answer()
     s = callback.data.split('_')[1]
     if s != 'all':
-        print('images/'+s+'.png')
-        await callback.message.answer_photo(photo=FSInputFile('images/'+s+'.png'))
-        await callback.message.edit_text(text=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s))} ```',
+        await callback.message.delete(id=callback.message.message_id)
+        await callback.message.answer_photo(photo=FSInputFile('images/'+s+'.png'),caption=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s))} ```',
                                      reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
     else:
         s = " "
