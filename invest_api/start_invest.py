@@ -1,4 +1,4 @@
-limport time
+import time
 from tinkoff.invest import Client, RequestError, OrderDirection, OrderType
 from config import TOKEN_STRATEG, strategies
 from invest_api.print_portfel import activs, print_portfolio
