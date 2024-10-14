@@ -132,11 +132,13 @@ async def buy_sell_list(strategs_arr, token, token_id):
 async def proverka(ARR, name):
     try:
         if await comparison(ARR, TOKEN_STRATEG[name]):
-            print(name)
+
             # for i in range(len(ARR[0])):
             #      print(ARR[0][i], ARR[2][i])
+            await asyncio.sleep(10)
             data = await rq.select_strateg(name)
-            ARR = await activs(TOKEN_STRATEG[name])        // изменение
+            ARR = await activs(TOKEN_STRATEG[name])
+            print(f"\033[1;32;40m {name} {ARR[3] } \033[0m")
             for d in data:
                 await buy_sell_list(ARR, d[1], d[0])
                 await asyncio.sleep(1)
