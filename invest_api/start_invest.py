@@ -136,6 +136,7 @@ async def proverka(ARR, name):
             # for i in range(len(ARR[0])):
             #      print(ARR[0][i], ARR[2][i])
             data = await rq.select_strateg(name)
+            ARR = await activs(TOKEN_STRATEG[name])        // изменение
             for d in data:
                 await buy_sell_list(ARR, d[1], d[0])
                 await asyncio.sleep(1)
