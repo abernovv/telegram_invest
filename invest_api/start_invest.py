@@ -180,9 +180,9 @@ async def start_invest():
         creat_graf = 0
         while 1:
             current_time = datetime.datetime.now().time()  # Получение текущего времени
-            if ((datetime.time(14-n, 0, 30) <= current_time <= datetime.time(14, 1, 0)) or
-                    (datetime.time(18-n, 0, 30) <= current_time <= datetime.time(18, 1, 0))or
-                    (datetime.time(10-n, 0, 30) <= current_time <= datetime.time(10, 1, 0))):
+            if ((datetime.time(14-n, 0, 30) <= current_time <= datetime.time(14-n, 1, 0)) or
+                    (datetime.time(18-n, 0, 30) <= current_time <= datetime.time(18-n, 1, 0))or
+                    (datetime.time(10-n, 0, 30) <= current_time <= datetime.time(10-n, 1, 0))):
                 print("CLEAR STRATEGS")
                 clear_strategies(strategies)
 
