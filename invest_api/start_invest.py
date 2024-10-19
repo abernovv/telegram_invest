@@ -6,9 +6,9 @@ import datetime
 import asyncio
 import app.database.requests as rq
 
-
-start_time = datetime.time(10, 1, 30)   # 10:01 утра
-end_time = datetime.time(22, 30, 50)    # 22:30 вечера
+n=0
+start_time = datetime.time(10-n, 1, 30)   # 10:01 утра
+end_time = datetime.time(22-n, 30, 50)    # 22:30 вечера
 
 
 async def comparison(old, token):
@@ -97,7 +97,7 @@ async def buy_sell_list(strategs_arr, token, token_id):
     if token_id == '500961694':
         user[3] = int(user[3]) + 5000
 
-    multiplier = (int(user[3]) * 1.0) / int(strategs_arr[3])
+    multiplier = round( (int(user[3]) * 1.0) / int(strategs_arr[3]),2)
 
     print(user[3], user[4], round(multiplier, 2))
     # Создаем словарь для хранения итоговых значений
@@ -180,8 +180,9 @@ async def start_invest():
         creat_graf = 0
         while 1:
             current_time = datetime.datetime.now().time()  # Получение текущего времени
-            if ((datetime.time(14, 0, 30) <= current_time <= datetime.time(14, 1, 0)) or
-                    (datetime.time(18, 0, 30) <= current_time <= datetime.time(18, 1, 0))):
+            if ((datetime.time(14-n, 0, 30) <= current_time <= datetime.time(14, 1, 0)) or
+                    (datetime.time(18-n, 0, 30) <= current_time <= datetime.time(18, 1, 0))or
+                    (datetime.time(10-n, 0, 30) <= current_time <= datetime.time(10, 1, 0))):
                 print("CLEAR STRATEGS")
                 clear_strategies(strategies)
 
