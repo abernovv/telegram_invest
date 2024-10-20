@@ -28,8 +28,16 @@ class Reg_token(StatesGroup):
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer(f' hello {message.from_user.username} \nyou ID: {message.from_user.id}',
-                         reply_markup=kb.start)
+    # await message.answer(f' hello {message.from_user.username} \nyou ID: {message.from_user.id}',
+    #                      reply_markup=kb.start)
+    await message.answer(f'Автоследование может быть полезным как для новичков,'
+                         f' так и для опытных инвесторов.Возможность получать доход с минимумом усилий.'
+                         f' Для новичков в инвестициях следование готовой стратегии дает возможность получать доход'
+                         f' без необходимости посвящать много времени изучению основ биржевой торговли.Минимальные затраты времени.'
+                         f' Сервис автоследования полностью автоматизирован. После подключения к стратегии подписчику не придется думать,'
+                         f' какие именно активы нужно покупать и когда их продавать: за всё отвечает автоследование.'
+                         f' Сделки по стратегии будут автоматически повторяться на счетах подписчиков.',
+        reply_markup=kb.start)
 
 
 
