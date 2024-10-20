@@ -1,9 +1,18 @@
 import pandas as pd
 from tinkoff.invest import Client, RequestError, PortfolioResponse, PortfolioPosition
+from config import FULL_MAIN_TOKEN
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
+
+with Client(FULL_MAIN_TOKEN) as client:
+    instr = client.instruments.get_assets().assets
+    assets = {}
+
+    for i in instr:
+        if len(i.instruments):
+            assets[i.instruments[0].figi] = i.instruments[0].ticker
 
 
 def print_portfolio(client, accounts, accid):
@@ -26,9 +35,12 @@ def print_portfolio(client, accounts, accid):
 
 async def print_activ_str(token):
     activ = await activs(token)
-    s = activ[4] + " : " + str(int(activ[3])) + "p\nfigi" + " "*9 + "  |quantity   |lots\n"
+    s = activ[4] + " : " + str(int(activ[3])) + "p\nfigi/ticker" + " "*2 + "  |quantity   |lots\n"
     for i in range(len(activ[0])):
-        s += str(activ[0][i]).ljust(15) + "|"+str(int(activ[1][i])).ljust(11) + "|"+str(activ[2][i]) + '\n'
+        if activ[0][i] in assets.keys():
+            s += assets[activ[0][i]].ljust(15) + "|" + str(int(activ[1][i])).ljust(11) + "|" + str(activ[2][i]) + '\n'
+        else:
+            s += str(activ[0][i]).ljust(15) + "|" + str(int(activ[1][i])).ljust(11) + "|" + str(activ[2][i]) + '\n'
     return s
 
 
