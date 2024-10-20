@@ -39,6 +39,9 @@ async def print_activ_str(token):
     for i in range(len(activ[0])):
         if activ[0][i] in assets.keys():
             s += assets[activ[0][i]].ljust(15) + "|" + str(int(activ[1][i])).ljust(11) + "|" + str(activ[2][i]) + '\n'
+        elif activ[0][i] == "RUB000UTSTOM":
+            text = "RUB"
+            s += text.ljust(15) + "|" + str(int(activ[1][i])).ljust(11) + "|" + str(activ[2][i]) + '\n'
         else:
             s += str(activ[0][i]).ljust(15) + "|" + str(int(activ[1][i])).ljust(11) + "|" + str(activ[2][i]) + '\n'
     return s
