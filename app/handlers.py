@@ -139,7 +139,6 @@ async def my_token_view(callback: CallbackQuery):
         s = " "
         for i in range(len(cthet)):
             s += await print_activ_str(cthet[i][2]) + "\n"
-            time.sleep(0.2)
             await callback.message.edit_text(text=f' ``` {s} ```',
                                              reply_markup=kb.insert_my_token, parse_mode="MarkdownV2")
 
