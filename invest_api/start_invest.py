@@ -1,6 +1,6 @@
 import time
 from tinkoff.invest import Client, RequestError, OrderDirection, OrderType
-from config import TOKEN_STRATEG, strategies
+from config import TOKEN_STRATEG_V2, strategies
 from invest_api.print_portfel import activs, print_portfolio
 import datetime
 import asyncio
@@ -131,13 +131,13 @@ async def buy_sell_list(strategs_arr, token, token_id):
 
 async def proverka(ARR, name):
     try:
-        if await comparison(ARR, TOKEN_STRATEG[name]):
+        if await comparison(ARR, TOKEN_STRATEG_V2[name][0]):
 
             # for i in range(len(ARR[0])):
             #      print(ARR[0][i], ARR[2][i])
             await asyncio.sleep(10)
             data = await rq.select_strateg(name)
-            ARR = await activs(TOKEN_STRATEG[name])
+            ARR = await activs(TOKEN_STRATEG_V2[name][0])
             print(f"\033[1;32;40m {name} {ARR[3] } \033[0m")
             for d in data:
                 await buy_sell_list(ARR, d[1], d[0])
@@ -158,21 +158,22 @@ matplotlib.use('Agg')
 async def creat_grafs():
     print("creat_graf")
 
-    for i in TOKEN_STRATEG.keys():
-        activ = await activs(TOKEN_STRATEG[i])
-        await rq.insert_graf(i, str(int(activ[3])))
-        s = await rq.select_graf(i)
-        arr = []
-        for j in range(len(s)):
-            arr.append(int(s[j][0]))
-        plt.plot(arr)
-        plt.title('График динамики стратегии ' + activ[4])
-        plt.xlabel('Индекс')
-        plt.ylabel('цена')
+    for i in TOKEN_STRATEG_V2.keys():
+        if i != "none":
+            activ = await activs(TOKEN_STRATEG_V2[i][0])
+            await rq.insert_graf(i, str(int(activ[3])))
+            s = await rq.select_graf(i)
+            arr = []
+            for j in range(len(s)):
+                arr.append(int(s[j][0]))
+            plt.plot(arr)
+            plt.title('График динамики стратегии ' + activ[4])
+            plt.xlabel('Индекс')
+            plt.ylabel('цена')
 
-        # Сохранение графика как изображения
-        plt.savefig('images/'+i+'.png', format='png')  # Сохранение в формате PNG
-        plt.close()
+            # Сохранение графика как изображения
+            plt.savefig('images/'+i+'.png', format='png')  # Сохранение в формате PNG
+            plt.close()
 
 
 async def start_invest():
@@ -188,7 +189,8 @@ async def start_invest():
 
             if start_time <= current_time <= end_time:
                 creat_graf = 0
-                for key in TOKEN_STRATEG.keys():
+                for key in TOKEN_STRATEG_V2.keys():
+                    if key != 'none'
                     await proverka(strategies[key], key)
 
             elif creat_graf == 0:
