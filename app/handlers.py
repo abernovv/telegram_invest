@@ -8,7 +8,7 @@ from aiogram import F, Router
 from tinkoff.invest import Client, RequestError
 from invest_api.print_portfel import print_activ_str
 
-from config import TOKEN_STRATEG, name_strategs
+from config import TOKEN_STRATEG_V2
 import app.keyboards as kb
 
 import app.database.requests as rq
@@ -92,14 +92,15 @@ async def view_strategs(callback: CallbackQuery):
     s = callback.data.split('_')[1]
     if s != 'all':
         await callback.message.delete(id=callback.message.message_id)
-        await callback.message.answer_photo(photo=FSInputFile('images/'+s+'.png'),caption=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s))} ```',
+        await callback.message.answer_photo(photo=FSInputFile('images/'+s+'.png'),caption=f' ``` {await print_activ_str(TOKEN_STRATEG_V2.get(s)[0])} ```',
                                      reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
     else:
         s = " "
-        for i in TOKEN_STRATEG.values():
-            s += await print_activ_str(i) + "\n"
-            await callback.message.edit_text(text=f' ``` {s} ```',
-                                             reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
+        for i in TOKEN_STRATEG.keys():
+            if i != 'none':
+                s += await print_activ_str(TOKEN_STRATEG_V2.get(i)[0]) + "\n"
+                await callback.message.edit_text(text=f' ``` {s} ```',
+                                                 reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
 
 
 #=============================my_token===========================================================================================
@@ -125,9 +126,13 @@ async def setings_my_token(callback: CallbackQuery):
     index = callback.data.split('_')[3]
     edit = await rq.select_user_strateg(callback.from_user.id)
     name = ""
-    for i in range(len(name_strategs)):
-        if name_strategs[i][0] == edit[int(index)][1]:
-            name = name_strategs[i][1]
+
+
+    for i in TOKEN_STRATEG_V2.keys():
+        if i == edit[int(index)][1]:
+            name = TOKEN_STRATEG_V2[i][1]
+
+
     await callback.message.edit_text(text=f'{edit[int(index)][0]}\nактивная  стратегия: { name }',
                                      reply_markup=kb.setings_my_token(index))
 
@@ -170,7 +175,7 @@ async def install_update(callback: CallbackQuery):
     s = callback.data.split('_')[2]
     index = callback.data.split('_')[3]
     if s != 'none':
-        await callback.message.edit_text(text=f' ``` {await print_activ_str(TOKEN_STRATEG.get(s) ) } ```',
+        await callback.message.edit_text(text=f' ``` {await print_activ_str(TOKEN_STRATEG_V2.get(s)[0] ) } ```',
                                          parse_mode="MarkdownV2", reply_markup=kb.install_update(index, s))
     else:
         await callback.message.edit_text(text=f'отключение стратегии ', reply_markup=kb.install_update(index, s))
