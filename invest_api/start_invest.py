@@ -190,8 +190,8 @@ async def start_invest():
             if start_time <= current_time <= end_time:
                 creat_graf = 0
                 for key in TOKEN_STRATEG_V2.keys():
-                    if key != 'none'
-                    await proverka(strategies[key], key)
+                    if key != 'none':
+                        await proverka(strategies[key], key)
 
             elif creat_graf == 0:
                 creat_graf = 1
