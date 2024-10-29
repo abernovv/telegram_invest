@@ -4,7 +4,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 import app.database.requests as rq
 
-from config import name_strategs
+from config import TOKEN_STRATEG_V2
 
 
 start = ReplyKeyboardMarkup(keyboard=[
@@ -19,14 +19,18 @@ main = InlineKeyboardMarkup(inline_keyboard=[
 ])
 
 
+#=======================================================================================
 async def viewing_strateg():
     keyboard = InlineKeyboardBuilder()
-    for i in range(len(name_strategs)-1):
-        keyboard.add(InlineKeyboardButton(text=name_strategs[i][1], callback_data=f'view_{name_strategs[i][0]}'))
+    for i in TOKEN_STRATEG_V2.keys():
+        if i != 'none':
+            keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'view_{i}'))
     keyboard.add(InlineKeyboardButton(text='просмотреть все стратегии', callback_data=f'view_all'))
     keyboard.add(InlineKeyboardButton(text='назад', callback_data=f'mein_menu'))
     return keyboard.adjust(1).as_markup()
 
+
+#=========================================================================
 
 view_strategs_menu = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='назад', callback_data='info_strategs')]
