@@ -96,7 +96,7 @@ async def view_strategs(callback: CallbackQuery):
                                      reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
     else:
         s = " "
-        for i in TOKEN_STRATEG.keys():
+        for i in TOKEN_STRATEG_V2.keys():
             if i != 'none':
                 s += await print_activ_str(TOKEN_STRATEG_V2.get(i)[0]) + "\n"
                 await callback.message.edit_text(text=f' ``` {s} ```',
@@ -219,5 +219,4 @@ async def reg_tokens(message: Message, state: FSMContext):
     except RequestError as e:
         await message.answer('токен не подошел\nВведите ваш токен повторно',
                                      reply_markup=kb.insert_my_token)
-
 
