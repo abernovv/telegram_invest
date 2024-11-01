@@ -63,8 +63,8 @@ def setings_my_token(index):
 
 async def update_my_token(index):
     keyboard = InlineKeyboardBuilder()
-    for i in range(len(name_strategs)):
-        keyboard.add(InlineKeyboardButton(text=name_strategs[i][1], callback_data=f'install_update_{name_strategs[i][0]}_{index}'))
+    for i in TOKEN_STRATEG_V2.keys():
+        keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'install_update_{i}_{index}'))
     keyboard.add(InlineKeyboardButton(text='назад', callback_data=f'setings_my_token_{index}'))
     return keyboard.adjust(1).as_markup()
 
