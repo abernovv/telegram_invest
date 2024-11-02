@@ -1,6 +1,6 @@
 import bd_script
 from bd_script import ASYNC_SELECT, ASYNC_INSERT,ASYNC_DELETE, ASYNC_UPDATE
-from config import db_config
+from config import db_config, ADMIN_CHAT
 
 bd_script.db_config_local = db_config
 
@@ -51,7 +51,7 @@ async def delete_token(s):
 
 
 async def main():
-    await ASYNC_DELETE('user_data', user_id='500961694')
+    await ASYNC_DELETE('user_data', user_id=ADMIN_CHAT[0])
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -60,7 +60,12 @@ if __name__ == "__main__":
 #CREATE USER db_user WITH PASSWORD 'password';
 #CREATE DATABASE invest;
 #GRANT ALL PRIVILEGES ON DATABASE invest to db_user;
-#CREATE TABLE strategs_grafs (type TEXT, price TEXT);
+
+
+#CREATE TABLE strategs_grafs (id SERIAL PRIMARY KEY,type TEXT, price TEXT);
+
 #CREATE TABLE user_data (id SERIAL PRIMARY KEY, user_id TEXT, token TEXT, type TEXT, name TEXT);
+
+
 
 
