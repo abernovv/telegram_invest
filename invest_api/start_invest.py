@@ -1,10 +1,13 @@
 import time
 from tinkoff.invest import Client, RequestError, OrderDirection, OrderType
-from config import TOKEN_STRATEG_V2, strategies
+from config import TOKEN_STRATEG_V2, ADMIN_CHAT
 from invest_api.print_portfel import activs, print_portfolio
 import datetime
 import asyncio
 import app.database.requests as rq
+
+
+strategies = {key: ["", 0, 0, 0] for key in TOKEN_STRATEG_V2 if key != 'none'}
 
 n=0
 start_time = datetime.time(10-n, 1, 30)   # 10:01 утра
@@ -94,7 +97,7 @@ async def buy_sell_list(strategs_arr, token, token_id):
                     if order.direction == 2:
                         user[2][i] -= (order.lots_requested - order.lots_executed)
 
-    if token_id == '500961694':
+    if token_id in ADMIN_CHAT:
         user[3] = int(user[3]) + 5000
 
     multiplier = round( (int(user[3]) * 1.0) / int(strategs_arr[3]),2)
@@ -117,7 +120,7 @@ async def buy_sell_list(strategs_arr, token, token_id):
                 result_dict[key] = -user[2][i]  # Если имени нет, добавляем как отрицательное значение
         else:
             result_dict[key] = user[2][i]
-            if token_id == '500961694':
+            if token_id in ADMIN_CHAT:
                 result_dict[key] += 5000
 
     # Преобразуем словарь в список для вывода
