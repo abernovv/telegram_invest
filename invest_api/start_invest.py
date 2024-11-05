@@ -1,13 +1,20 @@
-import time
-from tinkoff.invest import Client, RequestError, OrderDirection, OrderType
-from config import TOKEN_STRATEG_V2, ADMIN_CHAT
-from invest_api.print_portfel import activs, print_portfolio
-import datetime
 import asyncio
+import datetime
+from invest_api.print_portfel import activs, print_portfolio
+from tinkoff.invest import Client, OrderDirection, OrderType, RequestError
+import matplotlib
+import matplotlib.pyplot as plt
+
 import app.database.requests as rq
+from config import ADMIN_CHAT
 
 
-strategies = {key: ["", 0, 0, 0] for key in TOKEN_STRATEG_V2 if key != 'none'}
+
+async def Create_token_strategs():
+    arr = await rq.select_token_strategs('admin')
+    TOKEN_STRATEG_V2 = {arr[i][0]: [arr[i][1], arr[i][2]] for i in range(len(arr))}
+    return TOKEN_STRATEG_V2
+
 
 n=0
 start_time = datetime.time(10-n, 1, 30)   # 10:01 утра
@@ -134,6 +141,7 @@ async def buy_sell_list(strategs_arr, token, token_id):
 
 async def proverka(ARR, name):
     try:
+        TOKEN_STRATEG_V2 = await Create_token_strategs()
         if await comparison(ARR, TOKEN_STRATEG_V2[name][0]):
 
             # for i in range(len(ARR[0])):
@@ -155,12 +163,11 @@ def clear_strategies(strateg):
     for key in strateg.keys():
         strateg[key] = ["", 0, 0, 0]
 
-import matplotlib
-import matplotlib.pyplot as plt
+
 matplotlib.use('Agg')
 async def creat_grafs():
     print("creat_graf")
-
+    TOKEN_STRATEG_V2 = await Create_token_strategs()
     for i in TOKEN_STRATEG_V2.keys():
         if i != "none":
             activ = await activs(TOKEN_STRATEG_V2[i][0])
@@ -182,12 +189,16 @@ async def creat_grafs():
 async def start_invest():
     try:
         creat_graf = 0
+        TOKEN_STRATEG_V2 = await Create_token_strategs()
+        strategies = {key: ["", 0, 0, 0] for key in TOKEN_STRATEG_V2 if key != 'none'}
         while 1:
             current_time = datetime.datetime.now().time()  # Получение текущего времени
             if ((datetime.time(14-n, 0, 30) <= current_time <= datetime.time(14-n, 1, 0)) or
                     (datetime.time(18-n, 0, 30) <= current_time <= datetime.time(18-n, 1, 0))or
                     (datetime.time(10-n, 0, 30) <= current_time <= datetime.time(10-n, 1, 0))):
                 print("CLEAR STRATEGS")
+                TOKEN_STRATEG_V2 = await Create_token_strategs()
+                strategies = {key: ["", 0, 0, 0] for key in TOKEN_STRATEG_V2 if key != 'none'}
                 clear_strategies(strategies)
 
             if start_time <= current_time <= end_time:
