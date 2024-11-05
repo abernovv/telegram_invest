@@ -1,22 +1,21 @@
-import time
-
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, FSInputFile, InputMediaPhoto
 from aiogram import F, Router
-
-
-from tinkoff.invest import Client, RequestError
-from invest_api.print_portfel import print_activ_str
-
-from config import TOKEN_STRATEG_V2
-import app.keyboards as kb
-
-import app.database.requests as rq
-
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
+from tinkoff.invest import Client, RequestError
 
-from aiogram.types import FSInputFile, InputMediaPhoto
+
+from invest_api.print_portfel import print_activ_str
+import app.keyboards as kb
+import app.database.requests as rq
+
+
+async def Create_token_strategs():
+    arr = await rq.select_token_strategs('admin')
+    TOKEN_STRATEG_V2 = {arr[i][0]: [arr[i][1], arr[i][2]] for i in range(len(arr))}
+    return TOKEN_STRATEG_V2
+
 
 router = Router()
 
@@ -88,6 +87,7 @@ async def info_strategs(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith('view_'))
 async def view_strategs(callback: CallbackQuery):
+    TOKEN_STRATEG_V2 = await Create_token_strategs()
     await callback.answer()
     s = callback.data.split('_')[1]
     if s != 'all':
@@ -122,6 +122,7 @@ async def insert_my_token(callback: CallbackQuery, state: FSMContext):
 #================================setings_my_token===========================================================
 @router.callback_query(F.data.startswith('setings_my_token_'))
 async def setings_my_token(callback: CallbackQuery):
+    TOKEN_STRATEG_V2 = await Create_token_strategs()
     await callback.answer()
     index = callback.data.split('_')[3]
     edit = await rq.select_user_strateg(callback.from_user.id)
@@ -171,6 +172,7 @@ async def update_my_token_(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith('install_update_'))
 async def install_update(callback: CallbackQuery):
+    TOKEN_STRATEG_V2 = await Create_token_strategs()
     await callback.answer()
     s = callback.data.split('_')[2]
     index = callback.data.split('_')[3]
