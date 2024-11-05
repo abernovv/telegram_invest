@@ -1,18 +1,9 @@
+import asyncio
 import bd_script
-from bd_script import ASYNC_SELECT, ASYNC_INSERT,ASYNC_DELETE, ASYNC_UPDATE
-from config import db_config, ADMIN_CHAT
+from bd_script import ASYNC_SELECT, ASYNC_INSERT, ASYNC_DELETE, ASYNC_UPDATE
+from config import db_config
 
 bd_script.db_config_local = db_config
-
-
-import asyncio
-
-#async def test():
-#     data = await ASYNC_SELECT('user_data', ['name'], w_s=True, w_c='user_id', w_d=tg_id)
-#     await ASYNC_UPDATE('user_data', token=token, w_s=True, w_c='type', w_d=type)
-#     await ASYNC_DELETE('user_data', token='sdfsd')
-#     await ASYNC_INSERT('user_data', name='shdjf', user_id='dsufh')
-#     print(data)
 
 
 async def insert(tg_id, type, token, name):
@@ -50,21 +41,23 @@ async def delete_token(s):
     await ASYNC_DELETE('user_data', token=s)
 
 
-async def main():
-    await ASYNC_DELETE('user_data', user_id=ADMIN_CHAT[0])
+async def select_token_strategs(tg_id):
+    data = await ASYNC_SELECT('strategs', ['type', 'token', 'name'], w_s=True, w_c='user_id', w_d=str(tg_id))
+    return data
 
-if __name__ == "__main__":
-    asyncio.run(main())
 
 
 #CREATE USER db_user WITH PASSWORD 'password';
 #CREATE DATABASE invest;
-#GRANT ALL PRIVILEGES ON DATABASE invest to db_user;
+
+#GRANT ALL PRIVILEGES ON DATABASE invest to db_user; версии до 15
 
 
 #CREATE TABLE strategs_grafs (id SERIAL PRIMARY KEY,type TEXT, price TEXT);
 
 #CREATE TABLE user_data (id SERIAL PRIMARY KEY, user_id TEXT, token TEXT, type TEXT, name TEXT);
+
+#CREATE TABLE strategs (id SERIAL PRIMARY KEY, user_id TEXT, type TEXT, token TEXT, name TEXT);
 
 
 
