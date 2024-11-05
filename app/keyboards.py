@@ -56,7 +56,7 @@ async def my_token(tg_id):
     return keyboard.adjust(1).as_markup()
 
 
-def setings_my_token(index):
+async def setings_my_token(index):
     t = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='просмотреть состояние токена/счета', callback_data=f'my_token_view_{index}')],
     [InlineKeyboardButton(text='начать следовать cтратегии / обновить стратегию', callback_data=f'update_my_token_{index}')],
@@ -75,7 +75,7 @@ async def update_my_token(index):
     return keyboard.adjust(1).as_markup()
 
 
-def install_update(index, s):
+async def install_update(index, s):
     t = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='подключить', callback_data=f'token_update_{index}_{s}')],
     [InlineKeyboardButton(text='назад', callback_data=f'setings_my_token_{index}')]
