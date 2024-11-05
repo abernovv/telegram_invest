@@ -10,7 +10,6 @@ from invest_api.print_portfel import print_activ_str
 import app.keyboards as kb
 import app.database.requests as rq
 
-
 async def Create_token_strategs():
     arr = await rq.select_token_strategs('admin')
     TOKEN_STRATEG_V2 = {arr[i][0]: [arr[i][1], arr[i][2]] for i in range(len(arr))}
@@ -18,7 +17,6 @@ async def Create_token_strategs():
 
 
 router = Router()
-
 
 class Reg_token(StatesGroup):
     token = State()
@@ -135,7 +133,7 @@ async def setings_my_token(callback: CallbackQuery):
 
 
     await callback.message.edit_text(text=f'{edit[int(index)][0]}\nактивная  стратегия: { name }',
-                                     reply_markup=kb.setings_my_token(index))
+                                     reply_markup=await kb.setings_my_token(index))
 
 
 @router.callback_query(F.data.startswith('delete_my_token_'))
@@ -178,9 +176,9 @@ async def install_update(callback: CallbackQuery):
     index = callback.data.split('_')[3]
     if s != 'none':
         await callback.message.edit_text(text=f' ``` {await print_activ_str(TOKEN_STRATEG_V2.get(s)[0] ) } ```',
-                                         parse_mode="MarkdownV2", reply_markup=kb.install_update(index, s))
+                                         parse_mode="MarkdownV2", reply_markup=await kb.install_update(index, s))
     else:
-        await callback.message.edit_text(text=f'отключение стратегии ', reply_markup=kb.install_update(index, s))
+        await callback.message.edit_text(text=f'отключение стратегии ', reply_markup=await kb.install_update(index, s))
 
 
 @router.callback_query(F.data.startswith('token_update_'))
