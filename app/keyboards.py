@@ -1,10 +1,14 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup,InlineKeyboardButton
-
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 
 import app.database.requests as rq
 
-from config import TOKEN_STRATEG_V2
+
+async def Create_token_strategs():
+    arr = await rq.select_token_strategs('admin')
+    TOKEN_STRATEG_V2 = {arr[i][0]: [arr[i][1], arr[i][2]] for i in range(len(arr))}
+    return TOKEN_STRATEG_V2
 
 
 start = ReplyKeyboardMarkup(keyboard=[
@@ -21,6 +25,7 @@ main = InlineKeyboardMarkup(inline_keyboard=[
 
 #=======================================================================================
 async def viewing_strateg():
+    TOKEN_STRATEG_V2 = await Create_token_strategs()
     keyboard = InlineKeyboardBuilder()
     for i in TOKEN_STRATEG_V2.keys():
         if i != 'none':
@@ -62,6 +67,7 @@ def setings_my_token(index):
 
 
 async def update_my_token(index):
+    TOKEN_STRATEG_V2 = await Create_token_strategs()
     keyboard = InlineKeyboardBuilder()
     for i in TOKEN_STRATEG_V2.keys():
         keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'install_update_{i}_{index}'))
