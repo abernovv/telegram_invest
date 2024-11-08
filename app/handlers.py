@@ -10,10 +10,6 @@ from invest_api.print_portfel import print_activ_str
 import app.keyboards as kb
 import app.database.requests as rq
 
-async def Create_token_strategs():
-    arr = await rq.select_token_strategs('admin')
-    TOKEN_STRATEG_V2 = {arr[i][0]: [arr[i][1], arr[i][2]] for i in range(len(arr))}
-    return TOKEN_STRATEG_V2
 
 
 router = Router()
@@ -85,7 +81,7 @@ async def info_strategs(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith('view_'))
 async def view_strategs(callback: CallbackQuery):
-    TOKEN_STRATEG_V2 = await Create_token_strategs()
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
     await callback.answer()
     s = callback.data.split('_')[1]
     if s != 'all':
@@ -120,7 +116,7 @@ async def insert_my_token(callback: CallbackQuery, state: FSMContext):
 #================================setings_my_token===========================================================
 @router.callback_query(F.data.startswith('setings_my_token_'))
 async def setings_my_token(callback: CallbackQuery):
-    TOKEN_STRATEG_V2 = await Create_token_strategs()
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
     await callback.answer()
     index = callback.data.split('_')[3]
     edit = await rq.select_user_strateg(callback.from_user.id)
@@ -170,7 +166,7 @@ async def update_my_token_(callback: CallbackQuery):
 
 @router.callback_query(F.data.startswith('install_update_'))
 async def install_update(callback: CallbackQuery):
-    TOKEN_STRATEG_V2 = await Create_token_strategs()
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
     await callback.answer()
     s = callback.data.split('_')[2]
     index = callback.data.split('_')[3]
@@ -202,7 +198,8 @@ async def reg_tokens(message: Message, state: FSMContext):
     try:
         with Client(data["token"]) as client:
             name = client.users.get_accounts()
-            if len(await rq.select_token(data["token"])) == 0:
+            id_account = name.accounts[0].id
+            if len(await rq.select_id_account(id_account)) == 0: # проверять лучше не по token, а по id
                 if name.accounts[0].access_level == 1:
                     await message.answer(f' регистрацию нового токена успешна\n'
                                          f'счет {name.accounts[0].name} подключен\n'

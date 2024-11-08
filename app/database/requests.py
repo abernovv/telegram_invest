@@ -28,8 +28,8 @@ async def select_strateg(strateg):
     return data
 
 
-async def select_token(token):
-    data = await ASYNC_SELECT('user_data', ['user_id'], w_s=True, w_c='token', w_d=token)
+async def select_id_account(id_account):
+    data = await ASYNC_SELECT('user_data', ['id_account'], w_s=True, w_c='id_user', w_d=str(id_account))
     return data
 
 
@@ -42,8 +42,9 @@ async def delete_token(s):
 
 
 async def select_token_strategs(tg_id):
-    data = await ASYNC_SELECT('strategs', ['type', 'token', 'name'], w_s=True, w_c='user_id', w_d=str(tg_id))
-    return data
+    arr = await ASYNC_SELECT('strategs', ['type', 'token', 'name'], w_s=True, w_c='user_id', w_d=str(tg_id))
+    TOKEN_STRATEG_V2 = {arr[i][0]: [arr[i][1], arr[i][2]] for i in range(len(arr))}
+    return TOKEN_STRATEG_V2
 
 
 
@@ -55,7 +56,7 @@ async def select_token_strategs(tg_id):
 
 #CREATE TABLE strategs_grafs (id SERIAL PRIMARY KEY,type TEXT, price TEXT);
 
-#CREATE TABLE user_data (id SERIAL PRIMARY KEY, user_id TEXT, token TEXT, type TEXT, name TEXT);
+#CREATE TABLE user_data (id SERIAL PRIMARY KEY, user_id TEXT,id_account TEXT, token TEXT, type TEXT, name TEXT);
 
 #CREATE TABLE strategs (id SERIAL PRIMARY KEY, user_id TEXT, type TEXT, token TEXT, name TEXT);
 
