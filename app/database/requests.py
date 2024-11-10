@@ -6,12 +6,13 @@ from config import db_config
 bd_script.db_config_local = db_config
 
 
-async def insert(tg_id, type, token, name):
-    await ASYNC_INSERT('user_data', name=name, token=token, type=type, user_id=str(tg_id))
+async def insert(tg_id, type, token, name,id_account):
+    await ASYNC_INSERT('user_data', name=name, token=token, type=type,id_account=id_account , user_id=str(tg_id))
 
 
 async def insert_graf(type, price):
     await ASYNC_INSERT('strategs_grafs', type=type, price=str(price))
+
 
 async def select_graf(type):
     data = await ASYNC_SELECT('strategs_grafs', ['price'], w_s=True, w_c='type', w_d=type)
@@ -29,7 +30,7 @@ async def select_strateg(strateg):
 
 
 async def select_id_account(id_account):
-    data = await ASYNC_SELECT('user_data', ['id_account'], w_s=True, w_c='id_user', w_d=str(id_account))
+    data = await ASYNC_SELECT('user_data', ['id_account'], w_s=True, w_c='id_account', w_d=str(id_account))
     return data
 
 
@@ -50,16 +51,10 @@ async def select_token_strategs(tg_id):
 
 #CREATE USER db_user WITH PASSWORD 'password';
 #CREATE DATABASE invest;
-
 #GRANT ALL PRIVILEGES ON DATABASE invest to db_user; версии до 15
-
 
 #CREATE TABLE strategs_grafs (id SERIAL PRIMARY KEY,type TEXT, price TEXT);
 
 #CREATE TABLE user_data (id SERIAL PRIMARY KEY, user_id TEXT,id_account TEXT, token TEXT, type TEXT, name TEXT);
 
 #CREATE TABLE strategs (id SERIAL PRIMARY KEY, user_id TEXT, type TEXT, token TEXT, name TEXT);
-
-
-
-
