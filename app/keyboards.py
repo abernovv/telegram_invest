@@ -1,11 +1,7 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup,InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-
 import app.database.requests as rq
-
-
-
 
 
 start = ReplyKeyboardMarkup(keyboard=[
@@ -14,29 +10,34 @@ start = ReplyKeyboardMarkup(keyboard=[
    ],
     resize_keyboard=True)
 
-main = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='информация о доступных стратегиях', callback_data='info_strategs')],
-    [InlineKeyboardButton(text='мои токены/счета', callback_data='my_token')]
-])
+async def main(id):
+    Keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text='авторские стратегии', callback_data='info_strategs_admin')],
+        [InlineKeyboardButton(text='мои стратегии', callback_data=f'info_strategs_{id}')],
+        [InlineKeyboardButton(text='мои токены/счета', callback_data='my_token')]
+    ])
+    return Keyboard
 
 
-#=======================================================================================
-async def viewing_strateg():
-    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+async def viewing_strateg(name):
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs(name)
     keyboard = InlineKeyboardBuilder()
     for i in TOKEN_STRATEG_V2.keys():
         if i != 'none':
-            keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'view_{i}'))
-    keyboard.add(InlineKeyboardButton(text='просмотреть все стратегии', callback_data=f'view_all'))
+            keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'view_{i}_{name}'))
+    if name != 'admin':
+        keyboard.add(InlineKeyboardButton(text='добавить стратегию', callback_data=f'add_user_strategs_{name}'))#===========================================
+    keyboard.add(InlineKeyboardButton(text='просмотреть все стратегии', callback_data=f'view_all_{name}'))
     keyboard.add(InlineKeyboardButton(text='назад', callback_data=f'mein_menu'))
     return keyboard.adjust(1).as_markup()
 
 
-#=========================================================================
-
-view_strategs_menu = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='назад', callback_data='info_strategs')]
-])
+async def view_strategs_menu(id,type):
+    keyboard = InlineKeyboardBuilder()
+    if id != 'admin':
+        keyboard.add(InlineKeyboardButton(text='удалить стратегию', callback_data=f'delit_strategs_{type}'))
+    keyboard.add(InlineKeyboardButton(text='назад', callback_data=f'info_strategs_{id}'))
+    return keyboard.adjust(1).as_markup()
 
 insert_my_token = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='назад', callback_data='my_token')]

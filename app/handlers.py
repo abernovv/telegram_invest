@@ -4,6 +4,9 @@ from aiogram import F, Router
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from tinkoff.invest import Client, RequestError
+import os
+import random
+import string
 
 
 from invest_api.print_portfel import print_activ_str
@@ -43,14 +46,16 @@ async def cmd_start(message: Message):
 #====================main_menu==============================================================================================
 @router.message(F.text == 'меню')
 async def main_menu(message: Message):
-    await message.answer(f'тут вы сможете управлять своими счетами и выбирать стратегии', reply_markup=kb.main)
+    await message.answer(f'тут вы сможете управлять своими счетами и выбирать стратегии',
+                          reply_markup = await kb.main(message.chat.id))
     await message.delete(id=message.message_id)
 
 
 @router.callback_query(F.data == 'mein_menu')
 async def main_menu(callback: CallbackQuery):
     await callback.answer()
-    await callback.message.edit_text(f'тут вы сможете управлять своими счетами и выбирать стратегии', reply_markup=kb.main)
+    await callback.message.edit_text(f'тут вы сможете управлять своими счетами и выбирать стратегии',
+                                     reply_markup=await kb.main(callback.message.chat.id))
 
 
 #===========================helper===========================================================================================
@@ -71,30 +76,48 @@ async def main_menu(message: Message):
     await message.answer_media_group(media=media)
 
 
+
 #=============================info_strategs============================================================================================
-@router.callback_query(F.data == 'info_strategs')
+@router.callback_query(F.data.startswith('info_strategs_'))
 async def info_strategs(callback: CallbackQuery):
+    name = callback.data.split('_')[2]
     await callback.answer()
     await callback.message.delete(id=callback.message.message_id)
-    await callback.message.answer('просмотр стратегий', reply_markup= await kb.viewing_strateg())
+    await callback.message.answer('просмотр стратегий', reply_markup= await kb.viewing_strateg(name))
 
 
 @router.callback_query(F.data.startswith('view_'))
 async def view_strategs(callback: CallbackQuery):
-    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+    name = callback.data.split('_')[2]
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs(name)
+
     await callback.answer()
     s = callback.data.split('_')[1]
     if s != 'all':
         await callback.message.delete(id=callback.message.message_id)
-        await callback.message.answer_photo(photo=FSInputFile('images/'+s+'.png'),caption=f' ``` {await print_activ_str(TOKEN_STRATEG_V2.get(s)[0])} ```',
-                                     reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
+        if os.path.exists('images/'+s+'.png') == 1:
+            await callback.message.answer_photo(photo=FSInputFile('images/'+s+'.png'),caption=f' ``` {await print_activ_str(TOKEN_STRATEG_V2.get(s)[0])} ```',
+                                     reply_markup=await kb.view_strategs_menu(name,s), parse_mode="MarkdownV2")
+        else:
+            await callback.message.answer(text=f' ``` {await print_activ_str(TOKEN_STRATEG_V2.get(s)[0])}  ```',
+                                             reply_markup=await kb.view_strategs_menu(name,s), parse_mode="MarkdownV2")
     else:
         s = " "
         for i in TOKEN_STRATEG_V2.keys():
             if i != 'none':
                 s += await print_activ_str(TOKEN_STRATEG_V2.get(i)[0]) + "\n"
                 await callback.message.edit_text(text=f' ``` {s} ```',
-                                                 reply_markup=kb.view_strategs_menu, parse_mode="MarkdownV2")
+                                                 reply_markup=await kb.view_strategs_menu(name,s), parse_mode="MarkdownV2")
+
+#===========================add_user_strategs_==================================================================================
+
+@router.callback_query(F.data.startswith('add_user_strategs_'))
+async def insert_my_token(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
+    await state.set_state(Reg_token.token)
+    await state.update_data(stra='user_strategs')
+    await callback.message.edit_text('Введите ваш токен', reply_markup=kb.insert_my_token)
+
 
 
 #=============================my_token===========================================================================================
@@ -109,7 +132,7 @@ async def my_token(callback: CallbackQuery, state: FSMContext):
 async def insert_my_token(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.set_state(Reg_token.token)
-    await state.update_data(stra='none')
+    await state.update_data(stra='user_token')
     await callback.message.edit_text('Введите ваш токен', reply_markup=kb.insert_my_token)
 
 
@@ -190,22 +213,49 @@ async def token_update(callback: CallbackQuery):
                                          reply_markup=kb.insert_my_token)
 
 
+def generate_random_word(length=5):
+    # Используем буквы и цифры
+    characters = string.ascii_letters + string.digits
+    random_word = ''.join(random.choice(characters) for _ in range(length))
+    return random_word
+
+
+
 
 @router.message(Reg_token.token)
 async def reg_tokens(message: Message, state: FSMContext):
     await state.update_data(token=message.text)
     data = await state.get_data()
+
     try:
-        with Client(data["token"]) as client:
+        with (Client(data["token"]) as client):
             name = client.users.get_accounts()
             id_account = name.accounts[0].id
-            if len(await rq.select_id_account(id_account)) == 0: # проверять лучше не по token, а по id
+            if( (len(await rq.select_id_account(id_account) ) == 0 and data['stra'] == 'user_token') or
+                (len(await rq.select_id_strategs(id_account) ) == 0 and data['stra'] == 'user_strategs')):
                 if name.accounts[0].access_level == 1:
-                    await message.answer(f' регистрацию нового токена успешна\n'
-                                         f'счет {name.accounts[0].name} подключен\n'
-                                         f'уровень доступа {name.accounts[0].access_level} ',
-                                         reply_markup=kb.insert_my_token)
-                    await rq.insert(message.from_user.id, data['stra'], data["token"], name.accounts[0].name, id_account)
+                    if(data['stra'] == 'user_token'):
+                        await message.answer(f' регистрацию нового токена успешна\n'
+                                             f'счет {name.accounts[0].name} подключен\n'
+                                             f'уровень доступа {name.accounts[0].access_level} ',
+                                             reply_markup=kb.insert_my_token)
+                        await rq.insert_user(message.from_user.id, 'none', data["token"], name.accounts[0].name, id_account)
+
+                    elif(data['stra'] == 'user_strategs'):
+                        await message.answer(f' регистрацию новой стратегии успешна\n'
+                                             f'счет {name.accounts[0].name} подключен\n'
+                                             f'уровень доступа {name.accounts[0].access_level} ',
+                                             reply_markup=kb.insert_my_token)
+                        #================================================================================================================================================================генерировать уникальный тип стратегии id-рандом
+                        # Генерируем слово
+                        random_word = generate_random_word()
+                        type_strategs = str(message.chat.id) + '-' + random_word
+                        await rq.insert_strategs(message.chat.id, type_strategs, data["token"], name.accounts[0].name, id_account) #====================
+
+
+
+
+
                     await state.clear()
                 else:
                     await message.answer('токену не хватает уровня доступа\nВведите ваш токен повторно',

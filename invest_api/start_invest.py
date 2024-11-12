@@ -1,5 +1,8 @@
 import asyncio
 import datetime
+
+from pandas.core.dtypes.cast import np_can_hold_element
+
 from invest_api.print_portfel import activs, print_portfolio
 from tinkoff.invest import Client, OrderDirection, OrderType, RequestError
 import matplotlib
@@ -9,11 +12,9 @@ import app.database.requests as rq
 from config import ADMIN_CHAT
 
 
-
-
 n=0
-start_time = datetime.time(10-n, 1, 30)   # 10:01 утра
-end_time = datetime.time(22-n, 30, 50)    # 22:30 вечера
+start_time = datetime.time(10-n, 1, 30)   # 10:01 утра начало торгового дня
+end_time = datetime.time(22-n, 30, 50)    # 22:30 вечера конец торгового дня
 
 
 async def comparison(old, token):
@@ -21,8 +22,8 @@ async def comparison(old, token):
         new = await activs(token)
         if len(new[0]) == len(old[0]):
             for i in range(len(new[0])):
-                if not(new[0][i] == old[0][i] and new[0][i] == old[0][i]):
-                    print(new[0][i], old[0][i], new[0][i], old[0][i])
+                if not(new[0][i] == old[0][i] and new[1][i] == old[1][i]):
+                    print(new[0][i], old[0][i], new[1][i], old[1][i])
                     old.clear()
                     for i in new:
                         old.append(i)
@@ -40,7 +41,7 @@ async def comparison(old, token):
 
 
 def buysell(token, act):
-    ignorlist = ["RUB000UTSTOM", "BBG0013HGFT4", "BBG0013HJJ31"]
+    ignorlist = ["RUB000UTSTOM", "BBG0013HGFT4", "BBG0013HJJ31"] # бумаги которые мы будем игнорировать по типу валюты
 
     money = 0
     for i in range(len(act)):
@@ -49,7 +50,7 @@ def buysell(token, act):
 
     with Client(token) as client:
         accounts = client.users.get_accounts()
-        for i in range(len(act)):
+        for i in range(len(act)): #проходим по всем позициям которые отличчаются от авторской стратегии
             if not (act[i][0] in ignorlist):
                 bids = []
                 asks = []
@@ -57,7 +58,7 @@ def buysell(token, act):
                     book = client.market_data.get_order_book(figi=act[i][0], depth=2)
                     bids = [p.price for p in book.bids]
                     asks = [p.price for p in book.asks]
-                if int(act[i][1]) < 0:
+                if int(act[i][1]) < 0: # создает офер на продажу если у человека больше акций чем у автора
                     sell = client.orders.post_order(
                         order_id=str(datetime.datetime.now().time()),
                         figi=act[i][0],
@@ -68,7 +69,7 @@ def buysell(token, act):
                         order_type=OrderType.ORDER_TYPE_LIMIT
                     )
                     print(f'продать {act[i][0]} : {-act[i][1]}')
-                elif int(act[i][1]) > 0 and (money > bids[0].units * act[i][1]):
+                elif int(act[i][1]) > 0 and (money > bids[0].units * act[i][1]): # создает офер на покупку если у человека меньше акций чем у автора и проверяет что ему хватит денег
                     money -= bids[0].units * int(act[i][1])
                     buy = client.orders.post_order(
                         order_id=str(datetime.datetime.now().time()),
@@ -136,9 +137,8 @@ async def buy_sell_list(strategs_arr, token, token_id):
 
 async def proverka(ARR, name):
     try:
-        TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+        TOKEN_STRATEG_V2 = await rq.select_token_strategs('all')
         if await comparison(ARR, TOKEN_STRATEG_V2[name][0]):
-
             # for i in range(len(ARR[0])):
             #      print(ARR[0][i], ARR[2][i])
             await asyncio.sleep(10)
@@ -154,15 +154,11 @@ async def proverka(ARR, name):
         return 0
 
 
-def clear_strategies(strateg):
-    for key in strateg.keys():
-        strateg[key] = ["", 0, 0, 0]
-
-
+#функция которая создает график исходы из данных в базе данных
 matplotlib.use('Agg')
 async def creat_grafs():
     print("creat_graf")
-    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs('all')
     for i in TOKEN_STRATEG_V2.keys():
         if i != "none":
             activ = await activs(TOKEN_STRATEG_V2[i][0])
@@ -181,30 +177,34 @@ async def creat_grafs():
             plt.close()
 
 
+def clear_strategies(strateg):
+    for key in strateg.keys():
+        strateg[key] = ["", 0, 0, 0]
+
+
 async def start_invest():
     try:
         creat_graf = 0
-        TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+        TOKEN_STRATEG_V2 = await rq.select_token_strategs('all')
         strategies = {key: ["", 0, 0, 0] for key in TOKEN_STRATEG_V2 if key != 'none'}
+        time_intervals = [10, 12, 14, 16, 18]  # время в которое будут проверяться все аккаунты на совпадение со стратегией
         while 1:
             current_time = datetime.datetime.now().time()  # Получение текущего времени
-            if ((datetime.time(10-n, 0, 50) <= current_time <= datetime.time(10-n, 1, 0)) or
-                (datetime.time(12-n, 0, 50) <= current_time <= datetime.time(12-n, 1, 0)) or
-                (datetime.time(14-n, 0, 50) <= current_time <= datetime.time(14-n, 1, 0)) or
-                (datetime.time(16-n, 0, 50) <= current_time <= datetime.time(16-n, 1, 0)) or
-                (datetime.time(18-n, 0, 50) <= current_time <= datetime.time(18-n, 1, 0))):
+            if any(datetime.time(hour - n, 0, 50)
+                   <= current_time <=
+                   datetime.time(hour - n, 1, 0) for hour in time_intervals):
                 print("CLEAR STRATEGS")
-                TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+                TOKEN_STRATEG_V2 = await rq.select_token_strategs('all') # получение списка всех стратегий
                 strategies = {key: ["", 0, 0, 0] for key in TOKEN_STRATEG_V2 if key != 'none'}
                 clear_strategies(strategies)
 
-            if start_time <= current_time <= end_time:
+            if start_time <= current_time <= end_time: # время торгового деня
                 creat_graf = 0
-                for key in TOKEN_STRATEG_V2.keys():
+                for key in TOKEN_STRATEG_V2.keys(): # проходит по всем стратегиям
                     if key != 'none':
                         await proverka(strategies[key], key)
 
-            elif creat_graf == 0:
+            elif creat_graf == 0: # когда заканчивается торговый день, генерирует граф в котором отображается изменение
                 creat_graf = 1
                 await creat_grafs()
 
