@@ -34,7 +34,7 @@ async def viewing_strateg(name):
 
 async def view_strategs_menu(id,type):
     keyboard = InlineKeyboardBuilder()
-    if id != 'admin':
+    if id != 'admin' and type != 'admin1':
         keyboard.add(InlineKeyboardButton(text='удалить стратегию', callback_data=f'delit_strategs_{type}'))
     keyboard.add(InlineKeyboardButton(text='назад', callback_data=f'info_strategs_{id}'))
     return keyboard.adjust(1).as_markup()

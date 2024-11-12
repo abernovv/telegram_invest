@@ -79,7 +79,8 @@ async def main_menu(message: Message):
 
 #=============================info_strategs============================================================================================
 @router.callback_query(F.data.startswith('info_strategs_'))
-async def info_strategs(callback: CallbackQuery):
+async def info_strategs(callback: CallbackQuery, state: FSMContext):
+    await state.clear()
     name = callback.data.split('_')[2]
     await callback.answer()
     await callback.message.delete(id=callback.message.message_id)
@@ -116,7 +117,7 @@ async def insert_my_token(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.set_state(Reg_token.token)
     await state.update_data(stra='user_strategs')
-    await callback.message.edit_text('Введите ваш токен', reply_markup=kb.insert_my_token)
+    await callback.message.edit_text('Введите ваш токен', reply_markup= await kb.view_strategs_menu(callback.message.chat.id,'admin1'))
 
 
 
@@ -133,7 +134,7 @@ async def insert_my_token(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     await state.set_state(Reg_token.token)
     await state.update_data(stra='user_token')
-    await callback.message.edit_text('Введите ваш токен', reply_markup=kb.insert_my_token)
+    await callback.message.edit_text('Введите ваш токен', reply_markup=kb.insert_my_token )
 
 
 #================================setings_my_token===========================================================
@@ -238,14 +239,14 @@ async def reg_tokens(message: Message, state: FSMContext):
                         await message.answer(f' регистрацию нового токена успешна\n'
                                              f'счет {name.accounts[0].name} подключен\n'
                                              f'уровень доступа {name.accounts[0].access_level} ',
-                                             reply_markup=kb.insert_my_token)
+                                             reply_markup=kb.insert_my_token )
                         await rq.insert_user(message.from_user.id, 'none', data["token"], name.accounts[0].name, id_account)
 
                     elif(data['stra'] == 'user_strategs'):
                         await message.answer(f' регистрацию новой стратегии успешна\n'
                                              f'счет {name.accounts[0].name} подключен\n'
                                              f'уровень доступа {name.accounts[0].access_level} ',
-                                             reply_markup=kb.insert_my_token)
+                                             reply_markup=await kb.view_strategs_menu(message.chat.id,'admin1'))
                         #================================================================================================================================================================генерировать уникальный тип стратегии id-рандом
                         # Генерируем слово
                         random_word = generate_random_word()
@@ -259,11 +260,11 @@ async def reg_tokens(message: Message, state: FSMContext):
                     await state.clear()
                 else:
                     await message.answer('токену не хватает уровня доступа\nВведите ваш токен повторно',
-                                         reply_markup=kb.insert_my_token)
+                                         reply_markup= kb.insert_my_token if data['stra'] == 'user_token' else await kb.view_strategs_menu(message.chat.id,'admin1') )
             else:
                 await message.answer('токену уже существует\nВведите ваш токен повторно',
-                                     reply_markup=kb.insert_my_token)
+                                     reply_markup=kb.insert_my_token if data['stra'] == 'user_token' else await kb.view_strategs_menu(message.chat.id,'admin1') )
     except RequestError as e:
         await message.answer('токен не подошел\nВведите ваш токен повторно',
-                                     reply_markup=kb.insert_my_token)
+                                     reply_markup=kb.insert_my_token if data['stra'] == 'user_token' else await kb.view_strategs_menu(message.chat.id,'admin1') )
 
