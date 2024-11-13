@@ -247,24 +247,27 @@ async def reg_tokens(message: Message, state: FSMContext):
                                              f'счет {name.accounts[0].name} подключен\n'
                                              f'уровень доступа {name.accounts[0].access_level} ',
                                              reply_markup=await kb.view_strategs_menu(message.chat.id,'admin1'))
-                        #================================================================================================================================================================генерировать уникальный тип стратегии id-рандом
-                        # Генерируем слово
-                        random_word = generate_random_word()
-                        type_strategs = str(message.chat.id) + '-' + random_word
-                        await rq.insert_strategs(message.chat.id, type_strategs, data["token"], name.accounts[0].name, id_account) #====================
 
+                        type_strategs = ''
+                        while 1: # создает точно уникальный type
+                            random_word = generate_random_word()
+                            type_strategs = str(message.chat.id) + '-' + random_word
+                            if len (await rq.select_type_strateg(type_strategs )) == 0:
+                               break
 
-
-
+                        await rq.insert_strategs(message.chat.id, type_strategs, data["token"], name.accounts[0].name, id_account)
 
                     await state.clear()
                 else:
                     await message.answer('токену не хватает уровня доступа\nВведите ваш токен повторно',
-                                         reply_markup= kb.insert_my_token if data['stra'] == 'user_token' else await kb.view_strategs_menu(message.chat.id,'admin1') )
+                                         reply_markup= kb.insert_my_token if data['stra'] == 'user_token'
+                                         else await kb.view_strategs_menu(message.chat.id,'admin1') )
             else:
                 await message.answer('токену уже существует\nВведите ваш токен повторно',
-                                     reply_markup=kb.insert_my_token if data['stra'] == 'user_token' else await kb.view_strategs_menu(message.chat.id,'admin1') )
+                                     reply_markup=kb.insert_my_token if data['stra'] == 'user_token'
+                                     else await kb.view_strategs_menu(message.chat.id,'admin1') )
     except RequestError as e:
         await message.answer('токен не подошел\nВведите ваш токен повторно',
-                                     reply_markup=kb.insert_my_token if data['stra'] == 'user_token' else await kb.view_strategs_menu(message.chat.id,'admin1') )
+                                     reply_markup=kb.insert_my_token if data['stra'] == 'user_token'
+                                     else await kb.view_strategs_menu(message.chat.id,'admin1') )
 

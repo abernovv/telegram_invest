@@ -16,11 +16,11 @@ async def insert_strategs(tg_id, type, token, name,id_account):
 
 
 
-async def insert_graf(type, price):
+async def insert_graf(type, price): # каждый день после закрытия биржи добавляется стоимость портфеля
     await ASYNC_INSERT('strategs_grafs', type=type, price=str(price))
 
 
-async def select_graf(type):
+async def select_graf(type): # вернет все изменения цен для создания графика
     data = await ASYNC_SELECT('strategs_grafs', ['price'], w_s=True, w_c='type', w_d=type)
     return data
 
@@ -35,25 +35,30 @@ async def select_strateg(strateg):
     return data
 
 
-async def select_id_account(id_account):
+async def select_id_account(id_account): #находим по уникальному индитефикатору совпадение в бд что бы пользователь не мог добавить 2 одинаковых счета
     data = await ASYNC_SELECT('user_data', ['id_account'], w_s=True, w_c='id_account', w_d=str(id_account))
     return data
 
-async def select_id_strategs(id_account):
+
+async def select_id_strategs(id_account): #находим по уникальному индитефикатору совпадение в бд что бы пользователь не мог добавить 2 одинаковых счета
     data = await ASYNC_SELECT('strategs', ['id_account'], w_s=True, w_c='id_account', w_d=str(id_account))
+    return data
+
+async def select_type_strateg(type): #находим по уникальному индитефикатору совпадение в бд что бы пользователь не мог добавить 2 одинаковых счета
+    data = await ASYNC_SELECT('strategs', ['id_account'], w_s=True, w_c='type', w_d=type)
     return data
 
 
 
-async def update(token, type):
+async def update(token, type): # обновить стратегию которой будет следовать пользователь
     await ASYNC_UPDATE('user_data', type=type, w_s=True, w_c='token', w_d=token)
 
 
-async def delete_token(s):
+async def delete_token(s): # удаление токена пользователя
     await ASYNC_DELETE('user_data', token=s)
 
 
-async def select_token_strategs(tg_id):
+async def select_token_strategs(tg_id): #вернет список стратегий персональных \ авторских \ всех
     arr = []
     if tg_id != 'all':
         arr = await ASYNC_SELECT('strategs', ['type', 'token', 'name'], w_s=True, w_c='user_id', w_d=str(tg_id))
@@ -77,4 +82,4 @@ async def select_token_strategs(tg_id):
 
 #CREATE TABLE user_data (id SERIAL PRIMARY KEY, user_id TEXT,id_account TEXT, token TEXT, type TEXT, name TEXT);
 
-#CREATE TABLE strategs (id SERIAL PRIMARY KEY, user_id TEXT,id_account TEXT, type TEXT, token TEXT, name TEXT);
+#CREATE TABLE strategs (id SERIAL PRIMARY KEY, user_id TEXT,id_account TEXT, type TEXT, token TEXT, name TEXT); # добавить стартовую стоимость портфеля ? \ менять процент каждую ночь ? \ добавит возможность сортировки по прибыли
