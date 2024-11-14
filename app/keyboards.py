@@ -26,7 +26,7 @@ async def viewing_strateg(name):
         if i != 'none':
             keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'view_{i}_{name}'))
     if name != 'admin':
-        keyboard.add(InlineKeyboardButton(text='добавить стратегию', callback_data=f'add_user_strategs_{name}'))#===========================================
+        keyboard.add(InlineKeyboardButton(text='добавить стратегию', callback_data=f'add_user_strategs_{name}'))
     keyboard.add(InlineKeyboardButton(text='просмотреть все стратегии', callback_data=f'view_all_{name}'))
     keyboard.add(InlineKeyboardButton(text='назад', callback_data=f'mein_menu'))
     return keyboard.adjust(1).as_markup()
@@ -35,7 +35,7 @@ async def viewing_strateg(name):
 async def view_strategs_menu(id,type):
     keyboard = InlineKeyboardBuilder()
     if id != 'admin' and type != 'admin1':
-        keyboard.add(InlineKeyboardButton(text='удалить стратегию', callback_data=f'delit_strategs_{type}'))
+        keyboard.add(InlineKeyboardButton(text='удалить стратегию', callback_data=f'delete_strategs_{type}'))
     keyboard.add(InlineKeyboardButton(text='назад', callback_data=f'info_strategs_{id}'))
     return keyboard.adjust(1).as_markup()
 

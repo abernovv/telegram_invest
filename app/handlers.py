@@ -103,12 +103,12 @@ async def view_strategs(callback: CallbackQuery):
             await callback.message.answer(text=f' ``` {await print_activ_str(TOKEN_STRATEG_V2.get(s)[0])}  ```',
                                              reply_markup=await kb.view_strategs_menu(name,s), parse_mode="MarkdownV2")
     else:
-        s = " "
+        st = " "
         for i in TOKEN_STRATEG_V2.keys():
             if i != 'none':
-                s += await print_activ_str(TOKEN_STRATEG_V2.get(i)[0]) + "\n"
-                await callback.message.edit_text(text=f' ``` {s} ```',
-                                                 reply_markup=await kb.view_strategs_menu(name,s), parse_mode="MarkdownV2")
+                st += await print_activ_str(TOKEN_STRATEG_V2.get(i)[0]) + "\n"
+                await callback.message.edit_text(text=f' ``` {st} ```',
+                                                 reply_markup=await kb.view_strategs_menu(name,'admin1'), parse_mode="MarkdownV2")
 
 #===========================add_user_strategs_==================================================================================
 
@@ -119,6 +119,14 @@ async def insert_my_token(callback: CallbackQuery, state: FSMContext):
     await state.update_data(stra='user_strategs')
     await callback.message.edit_text('Введите ваш токен', reply_markup= await kb.view_strategs_menu(callback.message.chat.id,'admin1'))
 
+
+@router.callback_query(F.data.startswith('delete_strategs_'))
+async def delete_strategs(callback: CallbackQuery):
+    type = callback.data.split('_')[2]
+    await callback.message.delete(id=callback.message.message_id)#============================================================================
+    await rq.delet_strategs(type)
+    await callback.message.answer('стратегия удалена',
+                                  reply_markup=await kb.view_strategs_menu(callback.message.chat.id, 'admin1'))
 
 
 #=============================my_token===========================================================================================
@@ -146,11 +154,9 @@ async def setings_my_token(callback: CallbackQuery):
     edit = await rq.select_user_strateg(callback.from_user.id)
     name = ""
 
-
     for i in TOKEN_STRATEG_V2.keys():
         if i == edit[int(index)][1]:
             name = TOKEN_STRATEG_V2[i][1]
-
 
     await callback.message.edit_text(text=f'{edit[int(index)][0]}\nактивная  стратегия: { name }',
                                      reply_markup=await kb.setings_my_token(index))
