@@ -187,7 +187,7 @@ async def my_token_view(callback: CallbackQuery):
                                              reply_markup=kb.insert_my_token, parse_mode="MarkdownV2")
 
 
-@router.callback_query(F.data.startswith('update_my_token_'))
+@router.callback_query(F.data.startswith('update_my_token_'))#========================================================================================================
 async def update_my_token_(callback: CallbackQuery):
     index = callback.data.split('_')[3]
     await callback.message.edit_text(text=f'доступные сратегии',
@@ -254,12 +254,8 @@ async def reg_tokens(message: Message, state: FSMContext):
                                              f'уровень доступа {name.accounts[0].access_level} ',
                                              reply_markup=await kb.view_strategs_menu(message.chat.id,'admin1'))
 
-                        type_strategs = ''
-                        while 1: # создает точно уникальный type
-                            random_word = generate_random_word()
-                            type_strategs = str(message.chat.id) + '-' + random_word
-                            if len (await rq.select_type_strateg(type_strategs )) == 0:
-                               break
+
+                        type_strategs = str(message.chat.id) + '-' + str(id_account)
 
                         await rq.insert_strategs(message.chat.id, type_strategs, data["token"], name.accounts[0].name, id_account)
 

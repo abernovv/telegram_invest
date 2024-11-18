@@ -57,7 +57,8 @@ async def delet_strategs(type):
     user = await select_strateg(type)
     for i in user:
         await update(i[1], 'none')
-    await ASYNC_DELETE('strategs',type=type)
+    await ASYNC_DELETE('strategs_grafs', type=type)
+    await ASYNC_DELETE('strategs', type=type)
 
 
 #========================================strategs_grafs=================================================================
@@ -69,15 +70,14 @@ async def select_graf(type): # вернет все изменения цен д�
     return await ASYNC_SELECT('strategs_grafs', ['price'], w_s=True, w_c='type', w_d=type)
 
 
-async def main():
-    user = await select_strateg('teni2')
-
-    for i in user:
-        await update(i[1],'none')
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+# async def main():
+#     user = await select_strateg('teni2')
+#     for i in user:
+#         await update(i[1],'none')
+#
+#
+# if __name__ == "__main__":
+#     asyncio.run(main())
 
 #CREATE USER db_user WITH PASSWORD 'password';
 #CREATE DATABASE invest;
