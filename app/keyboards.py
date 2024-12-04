@@ -54,21 +54,23 @@ async def my_token(tg_id):
     return keyboard.adjust(1).as_markup()
 
 
-async def setings_my_token(index):
+async def setings_my_token(index,chat_id):
     t = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='просмотреть состояние токена/счета', callback_data=f'my_token_view_{index}')],
-    [InlineKeyboardButton(text='начать следовать cтратегии / обновить стратегию', callback_data=f'update_my_token_{index}')],
+    [InlineKeyboardButton(text='обновить на авторскую стратегию', callback_data=f'update_my_token_{index}_admin')],
+    [InlineKeyboardButton(text='обновить на свою стратегию', callback_data=f'update_my_token_{index}_{chat_id}')],
     [InlineKeyboardButton(text='удалить токен/счет', callback_data=f'delete_my_token_{index}')],
     [InlineKeyboardButton(text='назад', callback_data='my_token')]
     ])
     return t
 
 
-async def update_my_token(index):
-    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+async def update_my_token(index,chat):
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs(chat)
+    print(index)
     keyboard = InlineKeyboardBuilder()
     for i in TOKEN_STRATEG_V2.keys():
-        keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'install_update_{i}_{index}'))
+        keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'install_update_{i}_{index}_{chat}'))
     keyboard.add(InlineKeyboardButton(text='назад', callback_data=f'setings_my_token_{index}'))
     return keyboard.adjust(1).as_markup()
 
