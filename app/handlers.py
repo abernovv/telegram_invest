@@ -159,7 +159,7 @@ async def setings_my_token(callback: CallbackQuery):
             name = TOKEN_STRATEG_V2[i][1]
 
     await callback.message.edit_text(text=f'{edit[int(index)][0]}\nактивная  стратегия: { name }',
-                                     reply_markup=await kb.setings_my_token(index))
+                                     reply_markup=await kb.setings_my_token(index,callback.message.chat.id))
 
 
 @router.callback_query(F.data.startswith('delete_my_token_'))
@@ -190,13 +190,15 @@ async def my_token_view(callback: CallbackQuery):
 @router.callback_query(F.data.startswith('update_my_token_'))#========================================================================================================
 async def update_my_token_(callback: CallbackQuery):
     index = callback.data.split('_')[3]
+    chat = callback.data.split('_')[4]
     await callback.message.edit_text(text=f'доступные сратегии',
-                                     reply_markup=await kb.update_my_token(index))
+                                     reply_markup=await kb.update_my_token(index,chat))
 
 
 @router.callback_query(F.data.startswith('install_update_'))
 async def install_update(callback: CallbackQuery):
-    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+    chatt = callback.data.split('_')[4]
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs(chatt)
     await callback.answer()
     s = callback.data.split('_')[2]
     index = callback.data.split('_')[3]
