@@ -148,12 +148,19 @@ async def insert_my_token(callback: CallbackQuery, state: FSMContext):
 #================================setings_my_token===========================================================
 @router.callback_query(F.data.startswith('setings_my_token_'))
 async def setings_my_token(callback: CallbackQuery):
-    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+
+
     await callback.answer()
     index = callback.data.split('_')[3]
     edit = await rq.select_user_strateg(callback.from_user.id)
     name = ""
 
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs('admin')
+    for i in TOKEN_STRATEG_V2.keys():
+        if i == edit[int(index)][1]:
+            name = TOKEN_STRATEG_V2[i][1]
+
+    TOKEN_STRATEG_V2 = await rq.select_token_strategs(callback.message.chat.id)
     for i in TOKEN_STRATEG_V2.keys():
         if i == edit[int(index)][1]:
             name = TOKEN_STRATEG_V2[i][1]
@@ -202,6 +209,7 @@ async def install_update(callback: CallbackQuery):
     await callback.answer()
     s = callback.data.split('_')[2]
     index = callback.data.split('_')[3]
+
     if s != 'none':
         await callback.message.edit_text(text=f' ``` {await print_activ_str(TOKEN_STRATEG_V2.get(s)[0] ) } ```',
                                          parse_mode="MarkdownV2", reply_markup=await kb.install_update(index, s))
