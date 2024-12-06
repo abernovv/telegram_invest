@@ -59,6 +59,7 @@ async def setings_my_token(index,chat_id):
     [InlineKeyboardButton(text='просмотреть состояние токена/счета', callback_data=f'my_token_view_{index}')],
     [InlineKeyboardButton(text='обновить на авторскую стратегию', callback_data=f'update_my_token_{index}_admin')],
     [InlineKeyboardButton(text='обновить на свою стратегию', callback_data=f'update_my_token_{index}_{chat_id}')],
+    [InlineKeyboardButton(text='отключить следование', callback_data=f'token_update_{index}_none')],
     [InlineKeyboardButton(text='удалить токен/счет', callback_data=f'delete_my_token_{index}')],
     [InlineKeyboardButton(text='назад', callback_data='my_token')]
     ])
@@ -67,7 +68,6 @@ async def setings_my_token(index,chat_id):
 
 async def update_my_token(index,chat):
     TOKEN_STRATEG_V2 = await rq.select_token_strategs(chat)
-    print(index)
     keyboard = InlineKeyboardBuilder()
     for i in TOKEN_STRATEG_V2.keys():
         keyboard.add(InlineKeyboardButton(text=TOKEN_STRATEG_V2[i][1], callback_data=f'install_update_{i}_{index}_{chat}'))
